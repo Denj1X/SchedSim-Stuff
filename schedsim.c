@@ -94,43 +94,47 @@ void SJN() {
 }
 
 ///din input.txt si priority.txt vom alege datele de intrare
-int main() {
-	///FILE *fp;
-	///fp = fopen("~/Desktop/so_stuuf/input.txt", "r");	
-	int limit, x, alg_option;
-	int wait_time = 0, turnaround_time = 0, *arrival_time, *burst_time, *temp;
-      float average_wait_time, average_turnaround_time;
+int main(int argc, char** argv) {    
+    int limit, x, alg_option;
+    int wait_time = 0, turnaround_time = 0, *arrival_time, *burst_time, *temp;
+    float average_wait_time, average_turnaround_time;
     
-      printf("\nEnter Total Number of Processes: ");
-      scanf("%d", &limit);
-      x = limit;
-      arrival_time = (int*) calloc(limit+1, sizeof(int));
-      burst_time = (int*) calloc(limit+1, sizeof(int));
-      temp = (int*) calloc(limit+1, sizeof(int));
-      for(int i = 0; i < limit; i++) {
-   		printf("\nEnter Details of Process[%d]\n", i + 1);
-       	printf("Arrival Time: ");
-       	scanf("%d", &arrival_time[i]);
-     	printf(" Burst Time: ");
-   		scanf("%d", &burst_time[i]);
-      	temp[i] = burst_time[i];
-   	}
-   	printf("Enter the algorithm option: ");
- 	scanf("%d", &alg_option);
- 	if(alg_option == 1) {
- 		FCFS(burst_time, arrival_time, temp, &wait_time, &turnaround_time, limit);
- 	}
- 	if(alg_option == 2) {
- 		Round_Robin(burst_time, arrival_time, temp, &wait_time, &turnaround_time, limit, &x);
-	}
-	average_wait_time = wait_time * 1.0 / limit;
-   	average_turnaround_time = turnaround_time * 1.0 / limit;
-   	
-   	printf("\n\nAverage Waiting Time: %f", average_wait_time);
-  	printf("\nAvg Turnaround Time: %f\n", average_turnaround_time);
-  	
-  	free(arrival_time);
-  	free(burst_time);
+    int fisier = open(argv[1], O_RDONLY);
+    char input[1000];
+    read(fisier, input, 1000);
+    close(fisier);
+    char *token = strtok(input," \n");
+    limit = atoi(token);
+    x = limit;
+    
+    arrival_time = (int*) calloc(limit+1, sizeof(int));
+    burst_time = (int*) calloc(limit+1, sizeof(int));
+    temp = (int*) calloc(limit+1, sizeof(int));
+    
+    for(int i = 0 ; i < limit; i++){
+        token = strtok(NULL, " \n");
+        arrival_time[i] = atoi(token);
+        token = strtok(NULL, " \n");
+        burst_time[i] = atoi(token); 
+    }
+    
+    
+       printf("Enter the algorithm option: ");
+     scanf("%d", &alg_option);
+     if(alg_option == 1) {
+         FCFS(burst_time, arrival_time, temp, &wait_time, &turnaround_time, limit);
+     }
+     if(alg_option == 2) {
+         Round_Robin(burst_time, arrival_time, temp, &wait_time, &turnaround_time, limit, &x);
+    }
+    average_wait_time = wait_time * 1.0 / limit;
+       average_turnaround_time = turnaround_time * 1.0 / limit;
+       
+       printf("\n\nAverage Waiting Time: %f", average_wait_time);
+      printf("\nAvg Turnaround Time: %f\n", average_turnaround_time);
+      
+      free(arrival_time);
+      free(burst_time);
       free(temp);
-   	return 0;
+       return 0;
 }
