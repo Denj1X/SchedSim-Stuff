@@ -88,9 +88,65 @@ void SRT() {
 
 }
 
-void SJN() {
-
-
+///shortest job next
+///procesele ajung in ordine!
+struct proc{
+    TAILQ_ENTRY(proc) tailq;
+    int bt,at,id;
+};
+struct proc proc_int(int id, int arrival_time, int burst_time){
+    struct proc aux;
+    aux.bt = burst_time;
+    aux.at = arrival_time;
+    aux.id = id;
+    return aux;
+}
+void SJN(int *burst_time, int *arrival_time, int *temp, int *wait_time, int *turnaround_time, int limit) {
+    int *wt_time, *td_time;
+    struct proc *procese;
+    procese = calloc(limit+1, sizeof(struct proc));
+    wt_time = (int*) calloc(limit+1, sizeof(int));
+          td_time = (int*) calloc(limit+1, sizeof(int));
+          wt_time[0] = 0;
+          int clock = arrival_time[0];
+        
+    TAILQ_HEAD(procq, proc);
+        
+    for(int i = 0; i < limit; i++){
+            procese[i] = proc_int(i,arrival_time[i],burst_time[i]);
+    }
+    
+    struct procq q;
+    TAILQ_INIT(&q);
+    int i = 0;
+    while(!TAILQ_EMPTY(&q) || i < limit){
+        while(procese[i].at <= clock && i < limit){
+            struct proc *p;
+            int gasit = 0;
+            TAILQ_FOREACH(p, &q, tailq)
+                if(p->bt > procese[i].bt){
+                    gasit = 1;
+                    TAILQ_INSERT_BEFORE(p, &procese[i], tailq);
+                    break;
+                }
+            if(gasit == 0) TAILQ_INSERT_TAIL(&q, &procese[i], tailq);
+            i++;
+        }
+        struct proc *aux = TAILQ_FIRST(&q);
+        wt_time[aux->id] = clock - aux->at;
+        clock = clock + aux->bt;
+        TAILQ_REMOVE(&q, aux, tailq);
+    }
+     
+    printf("\nProcess ID\tBurst Time\t Turnaround Time\t Waiting Time\n");
+    for(int i = 0; i < limit; i++) {
+        (*wait_time) += wt_time[i];
+        (*turnaround_time) += (burst_time[i] + wt_time[i]);
+        printf("\nProcess[%d]\t%d\t\t %d\t\t\t %d", i + 1, burst_time[i], burst_time[i] + wt_time[i], wt_time[i]);
+    }
+    free(wt_time);
+    free(td_time);
+    free(procese);
 }
 
 ///din input.txt si priority.txt vom alege datele de intrare
