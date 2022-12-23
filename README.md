@@ -1,5 +1,6 @@
 # SchedSim-Stuff
-```In this project we'll make a Scheduler Simulator in C
+```
+In this project we'll make a Scheduler Simulator in C
 Team:
     Matei-Alexandru Biciusca
     Petrica Simion
