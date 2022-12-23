@@ -9,8 +9,8 @@ A Scheduling Algorithm is the algorithm which tells us how much
     are either preemptive or non-preemptive.
     
 This particular one simulates 5 of the most popular schedule algorithms:
-    Round-Robin<br>
-    FCFS<br>
+    Round-Robin
+    FCFS
     Priority Scheduling
     SJN (Shortest-Job-Next)
     SRT (Shortest Remaining Time)
