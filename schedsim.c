@@ -83,11 +83,6 @@ void FCFS(int *burst_time, int *arrival_time, int *temp, int *wait_time, int *tu
       free(td_time);
 }
 
-void SRT() {
-
-
-}
-
 ///shortest job next
 ///procesele ajung in ordine!
 struct proc{
@@ -148,6 +143,68 @@ void SJN(int *burst_time, int *arrival_time, int *temp, int *wait_time, int *tur
     free(td_time);
     free(procese);
 }
+
+//shortest remaining time
+void SRT(int *burst_time, int *arrival_time, int *temp, int *wait_time, int *turnaround_time, int *CPU_util, int limit) {
+	int *wt_time, *bt_time;
+	struct proc *procese;
+	procese = calloc(limit+1, sizeof(struct proc));
+	wt_time = (int*) calloc(limit+1, sizeof(int));
+      	bt_time = (int*) calloc(limit+1, sizeof(int));
+      	for(int i = 0; i < limit; i++) {
+		wt_time[i] = 0;
+		bt_time[i] = burst_time[i];
+	}
+	
+      	int clock = arrival_time[0];
+	(*CPU_util) -= clock;
+	TAILQ_HEAD(procq, proc);
+	    
+	for(int i = 0; i < limit; i++){
+	    	procese[i] = proc_int(i,arrival_time[i],burst_time[i]);
+	}
+	
+	struct procq q;
+	TAILQ_INIT(&q);
+	
+	int i = 0;
+	while(!TAILQ_EMPTY(&q) || i < limit){
+		while(procese[i].at <= clock && i < limit){
+			struct proc *p;
+			int gasit = 0;
+			TAILQ_FOREACH(p, &q, tailq)
+				if(p->bt > procese[i].bt){
+					gasit = 1;
+					TAILQ_INSERT_BEFORE(p, &procese[i], tailq);
+					break;
+				}
+			if(gasit == 0) TAILQ_INSERT_TAIL(&q, &procese[i], tailq);
+			i++;
+		}
+		if(!TAILQ_EMPTY(&q)){
+			struct proc *aux = TAILQ_FIRST(&q);
+			wt_time[aux->id] = wt_time[aux->id] + clock - aux->at;
+			bt_time[aux->id] -= 1;
+			clock += 1;
+			procese[aux->id].at = clock;
+			if(bt_time[aux->id] == 0) TAILQ_REMOVE(&q, aux, tailq);
+		}
+		else clock += 1;
+	}
+	 
+	printf("\nProcess ID\tBurst Time\t Turnaround Time\t Waiting Time\n");
+	for(int i = 0; i < limit; i++) {
+	    (*wait_time) += wt_time[i];
+	    (*turnaround_time) += (burst_time[i] + wt_time[i]);
+	    printf("\nProcess[%d]\t%d\t\t %d\t\t\t %d", i + 1, burst_time[i], burst_time[i] + wt_time[i], wt_time[i]);
+	}
+	(*CPU_util) += clock;
+	printf("%ls\n",CPU_util);
+	free(wt_time);
+	free(bt_time);
+	free(procese);
+}
+
 
 ///din input.txt si priority.txt vom alege datele de intrare
 int main(int argc, char** argv) {    
