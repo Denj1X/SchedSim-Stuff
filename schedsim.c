@@ -60,13 +60,14 @@ void Round_Robin(int *burst_time, int *arrival_time, int *temp, int *wait_time, 
 ///cunoscut drept FIFO - stack
 ///non-preemptive algorithm
 
-void FCFS(int *burst_time, int *arrival_time, int *temp, int *wait_time, int *turnaround_time, int limit) {
+void FCFS(int *burst_time, int *arrival_time, int *wait_time, int *turnaround_time,int *CPU_util, int limit) {
 	
 	int *wt_time, *td_time;
 	wt_time = (int*) calloc(limit+1, sizeof(int));
  	td_time = (int*) calloc(limit+1, sizeof(int));
 	wt_time[0] = 0;
 	int completion_time = burst_time[0];
+	
 	///practic completion_time-ul va fi suma burst_time-urilor prcedente	
     for(int i = 1; i < limit; i++) {
     	completion_time += burst_time[i];
@@ -80,6 +81,7 @@ void FCFS(int *burst_time, int *arrival_time, int *temp, int *wait_time, int *tu
     	printf("\nProcess[%d]\t%d\t\t %d\t\t\t %d", i + 1, burst_time[i], burst_time[i] + wt_time[i], wt_time[i]);
    	}
    	
+   	(*CPU_util) += (arrival_time[limit-1] + burst_time[limit-1] + wt_time[limit-1] - arrival_time[0]);
    	free(wt_time);
    	free(td_time);
 }
