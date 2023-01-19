@@ -61,27 +61,27 @@ void Round_Robin(int *burst_time, int *arrival_time, int *temp, int *wait_time, 
 ///non-preemptive algorithm
 
 void FCFS(int *burst_time, int *arrival_time, int *temp, int *wait_time, int *turnaround_time, int limit) {
-	for(int i = 0; i < limit; i++) {
-		arrival_time[i] = 0;
-	}
-
+	
 	int *wt_time, *td_time;
 	wt_time = (int*) calloc(limit+1, sizeof(int));
-      td_time = (int*) calloc(limit+1, sizeof(int));
-      wt_time[0] = 0;
+ 	td_time = (int*) calloc(limit+1, sizeof(int));
+	wt_time[0] = 0;
+	int completion_time = burst_time[0];
+	///practic completion_time-ul va fi suma burst_time-urilor prcedente	
+    for(int i = 1; i < limit; i++) {
+    	completion_time += burst_time[i];
+   		wt_time[i] = completion_time - arrival_time[i] - burst_time[i];
+    }
     
-      for(int i = 1; i < limit; i++) {
-    	wt_time[i] = wt_time[i-1] + burst_time[i-1];
-      }
-    
-      printf("\nProcess ID\tBurst Time\t Turnaround Time\t Waiting Time\n");
-      for(int i = 0; i < limit; i++) {
-    	      (*wait_time) += wt_time[i];
-    	      (*turnaround_time) += (burst_time[i] + wt_time[i]);
-    	      printf("\nProcess[%d]\t%d\t\t %d\t\t\t %d", i + 1, burst_time[i], burst_time[i] + wt_time[i], wt_time[i]);
-      }
-      free(wt_time);
-      free(td_time);
+    printf("\nProcess ID\tBurst Time\t Turnaround Time\t Waiting Time\n");
+    for(int i = 0; i < limit; i++) {
+   		(*wait_time) += wt_time[i];
+    	(*turnaround_time) += (burst_time[i] + wt_time[i]);
+    	printf("\nProcess[%d]\t%d\t\t %d\t\t\t %d", i + 1, burst_time[i], burst_time[i] + wt_time[i], wt_time[i]);
+   	}
+   	
+   	free(wt_time);
+   	free(td_time);
 }
 
 ///shortest job next
