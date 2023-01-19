@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <errno.h>
@@ -12,59 +13,50 @@
 #include <semaphore.h>
 #include <sys/queue.h>
 
-///Round-Robin scheduling
+///Round-Robin scheduling, sequential
 ///preemptive algorithm
 
-void Round_Robin(int *burst_time, int *arrival_time, int *temp, int *wait_time, int *turnaround_time, int limit, int *x) {
-	int time_quantum;
-	printf("\nEnter Time Quantum: ");
-  	scanf("%d", &time_quantum);
-  	printf("\nProcess ID\tBurst Time\t Turnaround Time\t Waiting Time\n");
-      
-  	for(int total = 0, i = 0; (*x) != 0;) {
-  		int counter = 0;
-      	if(temp[i] <= time_quantum && temp[i] > 0) {
-     		total = total + temp[i];
-           	temp[i] = 0;
-           	counter = 1;
-    	}
-            
-  		else if(temp[i] > 0) {
-      		temp[i] = temp[i] - time_quantum;
-           	total = total + time_quantum;
-     	}
-            
-      	if(temp[i] == 0 && counter == 1) {
-       		(*x)--;
-          	printf("\nProcess[%d]\t%d\t\t %d\t\t %d", i + 1, burst_time[i], total - arrival_time[i], total - arrival_time[i] - burst_time[i]);
-        	(*wait_time) = (*wait_time) + total - arrival_time[i] - burst_time[i];
-        	(*turnaround_time) = (*turnaround_time) + total - arrival_time[i];
-          	counter = 0;
-  		}
-            
- 		if(i == limit - 1) {
-        	i = 0;
-       	}
-            
-     	else if(arrival_time[i + 1] <= total) {
-      		i++;
-      	}
-            
-      	else {
-    		i = 0;
-   		}
-  	}
-
-}
+void Round_Robin(int limit, int *sum, int *cnt, int *x, int q, int *wt, int *tat, int *at, int *bt, int *temp, int *i, int *CPU_util) {
+	
+	for((*sum) = 0, (*i) = 0; (*x) != 0; ) {  
+		if(temp[(*i)] <= q && temp[(*i)] > 0) {  
+    		(*sum) += temp[(*i)];  
+    		temp[(*i)] = 0;  
+    		(*cnt) = 1;  
+    	}     
+    	
+    	else if(temp[(*i)] > 0) {  
+        	temp[(*i)] = temp[(*i)] - q;  
+       	 	(*sum) += q;    
+       	 	
+    	}  
+    	if(temp[(*i)]==0 && (*cnt) == 1) {  
+        	(*x)--; //decrement the process  
+        	printf("\nProcess No[%d]\t%d\t\t %d\t\t\t %d", (*i) + 1, bt[(*i)], (*sum) - at[(*i)], (*sum) - at[(*i)] - bt[(*i)]);  
+        	(*wt) += (*sum) - at[(*i)] - bt[(*i)];  
+        	(*tat) += (*sum) - at[(*i)];  
+        	(*cnt) = 0;     
+    	}  
+    	
+    	if((*i) == limit - 1)
+        	(*i)=0;  
+        	
+    	else if(at[(*i)+1]<= (*sum))
+        	(*i)++;    
+        	
+    	else 
+        	(*i)=0; 
+	}
+	(*CPU_util) += ((*sum) - at[0]);  
+}	
 
 ///cunoscut drept FIFO - stack
 ///non-preemptive algorithm
 
 void FCFS(int *burst_time, int *arrival_time, int *wait_time, int *turnaround_time,int *CPU_util, int limit) {
 	
-	int *wt_time, *td_time;
+	int *wt_time;
 	wt_time = (int*) calloc(limit+1, sizeof(int));
- 	td_time = (int*) calloc(limit+1, sizeof(int));
 	wt_time[0] = 0;
 	int completion_time = burst_time[0];
 	
@@ -83,7 +75,6 @@ void FCFS(int *burst_time, int *arrival_time, int *wait_time, int *turnaround_ti
    	
    	(*CPU_util) += (arrival_time[limit-1] + burst_time[limit-1] + wt_time[limit-1] - arrival_time[0]);
    	free(wt_time);
-   	free(td_time);
 }
 
 ///shortest job next
@@ -217,7 +208,7 @@ int main(int argc, char** argv) {
 		printf("Please give a file with inputs!\n");
 		return 0;
 	} 
-    	int limit, x, alg_option;
+    int limit, x, alg_option;
 	int wait_time = 0, turnaround_time = 0, CPU_util = 0, burst_total = 0, *arrival_time, *burst_time, *temp;
 	float average_wait_time, average_turnaround_time;
 	
@@ -237,35 +228,43 @@ int main(int argc, char** argv) {
 		token = strtok(NULL, " \n");
 		arrival_time[i] = atoi(token);
 		token = strtok(NULL, " \n");
-		burst_time[i] = atoi(token); 
+		burst_time[i] = atoi(token);
 		burst_total += burst_time[i];
+		temp[i] = burst_time[i];
 	}
+	
 	printf("The list of algorithms:\n1.FCFS\n2.Round-Robin\n3.SRT\n4.SJN\n");
     	char continuare[1] = "y";
     	while(continuare[0] == 'y'){
-    	     wait_time = 0;
-    	     turnaround_time = 0;
-	     printf("\nEnter the algorithm option: ");
-	     scanf("%d", &alg_option);
-	     if(alg_option == 1)
-		 	FCFS(burst_time, arrival_time, &wait_time, &turnaround_time, limit);
-	     if(alg_option == 2)
-		 	Round_Robin(burst_time, arrival_time, temp, &wait_time, &turnaround_time, limit, &x);
-	     if(alg_option == 3)
+    	    wait_time = 0;
+    	    turnaround_time = 0;
+	    printf("\nEnter the algorithm option: ");
+	    scanf("%d", &alg_option);
+	    if(alg_option == 1)
+			FCFS(burst_time, arrival_time, &wait_time, &turnaround_time, &CPU_util, limit);
+		 	
+		if(alg_option == 2) {
+	     	int i = 0, sum = 0, cnt = 0, q;
+	     	printf("Enter the Time Quantum for the process: \t");  
+			scanf("%d", &q);  
+	     	Round_Robin(limit, &sum, &cnt, &x, q, &wait_time, &turnaround_time, arrival_time, burst_time, temp, &i, &CPU_util);
+		}
+	    if(alg_option == 3)
 			SRT(burst_time, arrival_time, &wait_time, &turnaround_time, &CPU_util, limit);
-	     if(alg_option == 4)
+	    if(alg_option == 4)
 			SJN(burst_time, arrival_time, &wait_time, &turnaround_time, &CPU_util, limit);
-	     average_wait_time = wait_time * 1.0 / limit;
-	     average_turnaround_time = turnaround_time * 1.0 / limit;
+			
+	    average_wait_time = wait_time * 1.0 / limit;
+	    average_turnaround_time = turnaround_time * 1.0 / limit;
 	       
-	     printf("\n\nAverage Waiting Time: %f", average_wait_time);
-	     printf("\nAvg Turnaround Time: %f\n", average_turnaround_time);
-	     printf("CPU Utilization: %f%% \n\n", burst_total * 100.0 / CPU_util);
-	     printf("Continue with another algorithm?(y/n)");
-	     scanf("%s",continuare);
-      }
-      free(arrival_time);
-      free(burst_time);
-      free(temp);
-       return 0;
+	    printf("\n\nAverage Waiting Time: %f", average_wait_time);
+	    printf("\nAvg Turnaround Time: %f\n", average_turnaround_time);
+	    printf("CPU Utilization: %f%% \n\n", burst_total * 100.0 / CPU_util);
+	    printf("Continue with another algorithm?(y/n)");
+	    scanf("%s",continuare);
+   	}
+  	free(arrival_time);
+    free(burst_time);
+   	free(temp);
+	return 0;
 }
