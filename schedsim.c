@@ -17,8 +17,8 @@
 ///preemptive algorithm
 
 void Round_Robin(int limit, int *sum, int *cnt, int *x, int q, int *wt, int *tat, int *at, int *bt, int *temp, int *i, int *CPU_util) {
-	
-	for((*sum) = 0, (*i) = 0; (*x) != 0; ) {  
+	printf("\nProcess ID\tBurst Time\t Turnaround Time\t Waiting Time\n");
+	for((*sum) = at[0], (*i) = 0; (*x) != 0; ) {  
 		if(temp[(*i)] <= q && temp[(*i)] > 0) {  
     		(*sum) += temp[(*i)];  
     		temp[(*i)] = 0;  
@@ -32,7 +32,7 @@ void Round_Robin(int limit, int *sum, int *cnt, int *x, int q, int *wt, int *tat
     	}  
     	if(temp[(*i)]==0 && (*cnt) == 1) {  
         	(*x)--; //decrement the process  
-        	printf("\nProcess No[%d]\t%d\t\t %d\t\t\t %d", (*i) + 1, bt[(*i)], (*sum) - at[(*i)], (*sum) - at[(*i)] - bt[(*i)]);  
+        	printf("\nProcess [%d]\t%d\t\t %d\t\t\t %d", (*i) + 1, bt[(*i)], (*sum) - at[(*i)], (*sum) - at[(*i)] - bt[(*i)]);  
         	(*wt) += (*sum) - at[(*i)] - bt[(*i)];  
         	(*tat) += (*sum) - at[(*i)];  
         	(*cnt) = 0;     
@@ -43,7 +43,10 @@ void Round_Robin(int limit, int *sum, int *cnt, int *x, int q, int *wt, int *tat
         	
     	else if(at[(*i)+1]<= (*sum))
         	(*i)++;    
-        	
+        else if(at[(*i)+1]  > (*sum) && limit - (*x) == (*i) + 1){
+        	(*sum) = at[(*i)+1];
+        	(*i)++;
+        }
     	else 
         	(*i)=0; 
 	}
@@ -58,12 +61,18 @@ void FCFS(int *burst_time, int *arrival_time, int *wait_time, int *turnaround_ti
 	int *wt_time;
 	wt_time = (int*) calloc(limit+1, sizeof(int));
 	wt_time[0] = 0;
-	int completion_time = burst_time[0];
+	int completion_time = arrival_time[0];
 	
 	///practic completion_time-ul va fi suma burst_time-urilor prcedente	
-    for(int i = 1; i < limit; i++) {
-    	completion_time += burst_time[i];
+    for(int i = 0; i < limit; i++) {
+    	if(completion_time >= arrival_time[i]){
+    		completion_time += burst_time[i];
    		wt_time[i] = completion_time - arrival_time[i] - burst_time[i];
+   	}
+   	else{
+   		completion_time = arrival_time[i]+ burst_time[i];
+   		wt_time[i] = 0;
+   	}
     }
     
     printf("\nProcess ID\tBurst Time\t Turnaround Time\t Waiting Time\n");
@@ -230,7 +239,7 @@ int main(int argc, char** argv) {
 		token = strtok(NULL, " \n");
 		burst_time[i] = atoi(token);
 		burst_total += burst_time[i];
-		temp[i] = burst_time[i];
+		
 	}
 	
 	printf("The list of algorithms:\n1.FCFS\n2.Round-Robin\n3.SRT\n4.SJN\n");
@@ -245,8 +254,11 @@ int main(int argc, char** argv) {
 		 	FCFS(burst_time, arrival_time, &wait_time, &turnaround_time, &CPU_util, limit);
 		 	
 	     if(alg_option == 2) {
-	     	int i = 0, sum = 0, cnt = 0, q = 0;
-	     	printf("Enter the Time Quantum for the process: \t");  
+	     	int i = 0, sum = 0, cnt = 0, q = 0, x = limit;
+	     	for(int j = 0; j < limit; j++){
+	     		temp[j] = burst_time[j];
+	     	}
+	     	printf("Enter the Time Quantum for the process:");  
 			scanf("%d", &q);  
 	     	Round_Robin(limit, &sum, &cnt, &x, q, &wait_time, &turnaround_time, arrival_time, burst_time, temp, &i, &CPU_util);
 	     }
