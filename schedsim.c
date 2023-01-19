@@ -236,32 +236,33 @@ int main(int argc, char** argv) {
 	printf("The list of algorithms:\n1.FCFS\n2.Round-Robin\n3.SRT\n4.SJN\n");
     	char continuare[1] = "y";
     	while(continuare[0] == 'y'){
-    	    wait_time = 0;
-    	    turnaround_time = 0;
-	    printf("\nEnter the algorithm option: ");
-	    scanf("%d", &alg_option);
-	    if(alg_option == 1)
-			FCFS(burst_time, arrival_time, &wait_time, &turnaround_time, &CPU_util, limit);
+    	     wait_time = 0;
+    	     turnaround_time = 0;
+    	     CPU_util = 0;
+	     printf("\nEnter the algorithm option: ");
+	     scanf("%d", &alg_option);
+	     if(alg_option == 1)
+		 	FCFS(burst_time, arrival_time, &wait_time, &turnaround_time, &CPU_util, limit);
 		 	
-		if(alg_option == 2) {
-	     	int i = 0, sum = 0, cnt = 0, q;
+	     if(alg_option == 2) {
+	     	int i = 0, sum = 0, cnt = 0, q = 0;
 	     	printf("Enter the Time Quantum for the process: \t");  
 			scanf("%d", &q);  
 	     	Round_Robin(limit, &sum, &cnt, &x, q, &wait_time, &turnaround_time, arrival_time, burst_time, temp, &i, &CPU_util);
-		}
-	    if(alg_option == 3)
+	     }
+	     if(alg_option == 3)
 			SRT(burst_time, arrival_time, &wait_time, &turnaround_time, &CPU_util, limit);
-	    if(alg_option == 4)
+	     if(alg_option == 4)
 			SJN(burst_time, arrival_time, &wait_time, &turnaround_time, &CPU_util, limit);
 			
-	    average_wait_time = wait_time * 1.0 / limit;
-	    average_turnaround_time = turnaround_time * 1.0 / limit;
+	     average_wait_time = wait_time * 1.0 / limit;
+	     average_turnaround_time = turnaround_time * 1.0 / limit;
 	       
-	    printf("\n\nAverage Waiting Time: %f", average_wait_time);
-	    printf("\nAvg Turnaround Time: %f\n", average_turnaround_time);
-	    printf("CPU Utilization: %f%% \n\n", burst_total * 100.0 / CPU_util);
-	    printf("Continue with another algorithm?(y/n)");
-	    scanf("%s",continuare);
+	     printf("\n\nAverage Waiting Time: %f", average_wait_time);
+	     printf("\nAvg Turnaround Time: %f\n", average_turnaround_time);
+	     printf("CPU Utilization: %f%% \n\n", burst_total * 100.0 / CPU_util);
+	     printf("Continue with another algorithm?(y/n)");
+	     scanf("%s",continuare);
    	}
   	free(arrival_time);
     free(burst_time);
