@@ -97,7 +97,7 @@ struct proc proc_int(int id, int arrival_time, int burst_time){
     aux.id = id;
     return aux;
 }
-void SJN(int *burst_time, int *arrival_time, int *temp, int *wait_time, int *turnaround_time,int *CPU_util, int limit) {
+void SJN(int *burst_time, int *arrival_time, int *wait_time, int *turnaround_time,int *CPU_util, int limit) {
 	int *wt_time;
 	struct proc *procese;
 	procese = calloc(limit+1, sizeof(struct proc));
@@ -149,7 +149,7 @@ void SJN(int *burst_time, int *arrival_time, int *temp, int *wait_time, int *tur
 }
 
 //shortest remaining time
-void SRT(int *burst_time, int *arrival_time, int *temp, int *wait_time, int *turnaround_time, int *CPU_util, int limit) {
+void SRT(int *burst_time, int *arrival_time,int *wait_time, int *turnaround_time, int *CPU_util, int limit) {
 	int *wt_time, *bt_time;
 	struct proc *procese;
 	procese = calloc(limit+1, sizeof(struct proc));
@@ -210,8 +210,12 @@ void SRT(int *burst_time, int *arrival_time, int *temp, int *wait_time, int *tur
 
 
 ///din input.txt si priority.txt vom alege datele de intrare
-int main(int argc, char** argv) {    
-    int limit, x, alg_option;
+int main(int argc, char** argv) {   
+	if(argc < 2){
+		printf("Please give a file with inputs!\n");
+		return 0;
+	} 
+    	int limit, x, alg_option;
 	int wait_time = 0, turnaround_time = 0, CPU_util = 0, burst_total = 0, *arrival_time, *burst_time, *temp;
 	float average_wait_time, average_turnaround_time;
 	
@@ -234,24 +238,30 @@ int main(int argc, char** argv) {
 		burst_time[i] = atoi(token); 
 		burst_total += burst_time[i];
 	}
-	
-    
-       printf("Enter the algorithm option: ");
-     scanf("%d", &alg_option);
-     if(alg_option == 1)
-         FCFS(burst_time, arrival_time, temp, &wait_time, &turnaround_time, limit);
-     if(alg_option == 2)
-         Round_Robin(burst_time, arrival_time, temp, &wait_time, &turnaround_time, limit, &x);
-     if(alg_option == 3)
-		SRT(burst_time, arrival_time, temp, &wait_time, &turnaround_time, &CPU_util, limit);
-     if(alg_option == 4)
-		SJN(burst_time, arrival_time, temp, &wait_time, &turnaround_time, &CPU_util, limit);
-    	average_wait_time = wait_time * 1.0 / limit;
-       average_turnaround_time = turnaround_time * 1.0 / limit;
-       
-       printf("\n\nAverage Waiting Time: %f", average_wait_time);
-      printf("\nAvg Turnaround Time: %f\n", average_turnaround_time);
-      printf("CPU Utilization: %f%% \n", burst_total * 100.0 / CPU_util);
+	printf("The list of algorithms:\n1.FCFS\n2.Round-Robin\n3.SRT\n4.SJN\n");
+    	char continuare[1] = "y";
+    	while(continuare[0] == 'y'){
+    	     wait_time = 0;
+    	     turnaround_time = 0;
+	     printf("\nEnter the algorithm option: ");
+	     scanf("%d", &alg_option);
+	     if(alg_option == 1)
+		 	FCFS(burst_time, arrival_time, &wait_time, &turnaround_time, limit);
+	     if(alg_option == 2)
+		 	Round_Robin(burst_time, arrival_time, temp, &wait_time, &turnaround_time, limit, &x);
+	     if(alg_option == 3)
+			SRT(burst_time, arrival_time, &wait_time, &turnaround_time, &CPU_util, limit);
+	     if(alg_option == 4)
+			SJN(burst_time, arrival_time, &wait_time, &turnaround_time, &CPU_util, limit);
+	     average_wait_time = wait_time * 1.0 / limit;
+	     average_turnaround_time = turnaround_time * 1.0 / limit;
+	       
+	     printf("\n\nAverage Waiting Time: %f", average_wait_time);
+	     printf("\nAvg Turnaround Time: %f\n", average_turnaround_time);
+	     printf("CPU Utilization: %f%% \n\n", burst_total * 100.0 / CPU_util);
+	     printf("Continue with another algorithm?(y/n)");
+	     scanf("%s",continuare);
+      }
       free(arrival_time);
       free(burst_time);
       free(temp);
