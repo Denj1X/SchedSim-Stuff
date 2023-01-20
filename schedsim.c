@@ -240,7 +240,7 @@ int main(int argc, char** argv) {
 		
 	}
 	if(argc == 3){
-		fisier = open(argv[1], O_RDONLY);
+		fisier = open(argv[2], O_RDONLY);
 		read(fisier, input, 1000);
 		close(fisier);
 		token = strtok(input," \n");
