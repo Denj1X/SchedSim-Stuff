@@ -218,7 +218,7 @@ int main(int argc, char** argv) {
 		return 0;
 	} 
     int limit, x, alg_option;
-	int wait_time = 0, turnaround_time = 0, CPU_util = 0, burst_total = 0, *arrival_time, *burst_time, *temp;
+	int wait_time = 0, turnaround_time = 0, CPU_util = 0, burst_total = 0, *arrival_time, *burst_time, *temp, *prioritati;
 	float average_wait_time, average_turnaround_time;
 	
 	int fisier = open(argv[1], O_RDONLY);
@@ -227,11 +227,9 @@ int main(int argc, char** argv) {
 	close(fisier);
 	char *token = strtok(input," \n");
 	limit = atoi(token);
-	x = limit;
 	
 	arrival_time = (int*) calloc(limit+1, sizeof(int));
 	burst_time = (int*) calloc(limit+1, sizeof(int));
-	temp = (int*) calloc(limit+1, sizeof(int));
 	
 	for(int i = 0 ; i < limit; i++){
 		token = strtok(NULL, " \n");
@@ -241,8 +239,20 @@ int main(int argc, char** argv) {
 		burst_total += burst_time[i];
 		
 	}
+	if(argc == 3){
+		fisier = open(argv[1], O_RDONLY);
+		read(fisier, input, 1000);
+		close(fisier);
+		token = strtok(input," \n");
+		prioritati = (int*) calloc(limit+1, sizeof(int));
+		prioritati[0] = atoi(token);
+		for(int i = 1 ; i < limit; i++){
+			token = strtok(NULL, " \n");
+			prioritati[i] = atoi(token);
+		}
+	}
 	
-	printf("The list of algorithms:\n1.FCFS\n2.Round-Robin\n3.SRT\n4.SJN\n");
+	printf("The list of algorithms:\n1.FCFS\n2.Round-Robin\n3.SRT\n4.SJN\n5.Priority\n");
     	char continuare[1] = "y";
     	while(continuare[0] == 'y'){
     	     wait_time = 0;
@@ -250,10 +260,11 @@ int main(int argc, char** argv) {
     	     CPU_util = 0;
 	     printf("\nEnter the algorithm option: ");
 	     scanf("%d", &alg_option);
+	     
 	     if(alg_option == 1)
 		 	FCFS(burst_time, arrival_time, &wait_time, &turnaround_time, &CPU_util, limit);
-		 	
 	     if(alg_option == 2) {
+	     	temp = (int*) calloc(limit+1, sizeof(int));
 	     	int i = 0, sum = 0, cnt = 0, q = 0, x = limit;
 	     	for(int j = 0; j < limit; j++){
 	     		temp[j] = burst_time[j];
@@ -261,12 +272,19 @@ int main(int argc, char** argv) {
 	     	printf("Enter the Time Quantum for the process:");  
 			scanf("%d", &q);  
 	     	Round_Robin(limit, &sum, &cnt, &x, q, &wait_time, &turnaround_time, arrival_time, burst_time, temp, &i, &CPU_util);
+	     	free(temp);
 	     }
 	     if(alg_option == 3)
 			SRT(burst_time, arrival_time, &wait_time, &turnaround_time, &CPU_util, limit);
 	     if(alg_option == 4)
 			SJN(burst_time, arrival_time, &wait_time, &turnaround_time, &CPU_util, limit);
-			
+		 if(alg_option == 5)
+		 	if(argc < 3){
+		 		printf("Please give a file with prioriries for inputs!\n");
+		 		return 0;
+		 	}
+		 	else limit = limit; //stergi asta si in locul ei apelezi functia;		
+		 	
 	     average_wait_time = wait_time * 1.0 / limit;
 	     average_turnaround_time = turnaround_time * 1.0 / limit;
 	       
@@ -278,6 +296,5 @@ int main(int argc, char** argv) {
    	}
   	free(arrival_time);
     free(burst_time);
-   	free(temp);
 	return 0;
 }
