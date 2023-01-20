@@ -68,11 +68,11 @@ void FCFS(int *burst_time, int *arrival_time, int *wait_time, int *turnaround_ti
     	if(completion_time >= arrival_time[i]){
     		completion_time += burst_time[i];
    		wt_time[i] = completion_time - arrival_time[i] - burst_time[i];
-   	}
+   		}
    	else{
    		completion_time = arrival_time[i]+ burst_time[i];
    		wt_time[i] = 0;
-   	}
+   		}
     }
     
     printf("\nProcess ID\tBurst Time\t Turnaround Time\t Waiting Time\n");
@@ -209,7 +209,44 @@ void SRT(int *burst_time, int *arrival_time,int *wait_time, int *turnaround_time
 	free(bt_time);
 	free(procese);
 }
-
+//Priority Scheduling Nonpreemptive
+void prior_non(int *burst_time, int *arrival_time,int *prioritati, int *wait_time, int *turnaround_time, int *CPU_util, int limit){
+	int index = 0, *sortat, *valori_temp;
+	sortat = (int*) calloc(limit+1,sizeof(int));
+	valori_temp = (int*) calloc(limit+1,sizeof(int));
+	sortat[0] = 0;
+	valori_temp[0] = arrival_time[0];
+	for(int i = 1; i < limit; i++){
+		sortat[i] = i;
+		valori_temp[i] = valori_temp[i-1] + burst_time[i-1];
+	}
+	for(int i = 1; i < limit; i++){
+		if( i != 0)
+			if(prioritati[sortat[i]] > prioritati[sortat[i-1]] && arrival_time[sortat[i]] <= valori_temp[i-1]){
+				valori_temp[i] += burst_time[sortat[i]] - burst_time[sortat[i-1]];
+				int aux = sortat[i];
+				sortat[i] = sortat[i-1];
+				sortat[i-1] = aux;
+				i -= 2; 
+			}
+	}
+	
+	printf("\nProcess ID\tBurst Time\t Turnaround Time\t Waiting Time\n");
+    for(int i = 0; i < limit; i++) {
+    	int wt_time;
+    	if(valori_temp[i] - arrival_time[sortat[i]] < 0) wt_time = 0;
+    	else wt_time = valori_temp[i] - arrival_time[sortat[i]];
+   		(*wait_time) += wt_time;
+    	(*turnaround_time) += (burst_time[sortat[i]] + wt_time);
+    	printf("\nProcess[%d]\t%d\t\t %d\t\t\t %d", sortat[i] + 1, burst_time[sortat[i]], burst_time[sortat[i]] + wt_time, wt_time);
+   	}
+	
+	if(valori_temp[limit-1] - arrival_time[sortat[limit-1]] < 0)
+		(*CPU_util) = arrival_time[sortat[limit-1]] + burst_time[sortat[limit-1]] - arrival_time[0];
+	else (*CPU_util) = valori_temp[limit-1] + burst_time[sortat[limit-1]] - arrival_time[0];
+	free(sortat);
+	free(valori_temp);
+}
 
 ///din input.txt si priority.txt vom alege datele de intrare
 int main(int argc, char** argv) {   
@@ -252,7 +289,7 @@ int main(int argc, char** argv) {
 		}
 	}
 	
-	printf("The list of algorithms:\n1.FCFS\n2.Round-Robin\n3.SRT\n4.SJN\n5.Priority\n");
+	printf("The list of algorithms:\n1.FCFS\n2.Round-Robin\n3.SRT\n4.SJN\n5.Priority\n6.Priority(Non)\n");
     	char continuare[1] = "y";
     	while(continuare[0] == 'y'){
     	     wait_time = 0;
@@ -283,7 +320,13 @@ int main(int argc, char** argv) {
 		 		printf("Please give a file with prioriries for inputs!\n");
 		 		return 0;
 		 	}
-		 	else limit = limit; //stergi asta si in locul ei apelezi functia;		
+		 	else limit = limit; //stergi asta si in locul ei apelezi functia;
+		 if(alg_option == 6)
+		 	if(argc < 3){
+		 		printf("Please give a file with prioriries for inputs!\n");
+		 		return 0;
+		 	}
+		 	else prior_non(burst_time, arrival_time, prioritati, &wait_time, &turnaround_time, &CPU_util, limit);
 		 	
 	     average_wait_time = wait_time * 1.0 / limit;
 	     average_turnaround_time = turnaround_time * 1.0 / limit;
@@ -295,6 +338,6 @@ int main(int argc, char** argv) {
 	     scanf("%s",continuare);
    	}
   	free(arrival_time);
-    free(burst_time);
+    	free(burst_time);
 	return 0;
 }
