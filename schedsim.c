@@ -322,7 +322,7 @@ int main(int argc, char** argv) {
 	 		return 0;
 	 	}
 	     	else prior_non(burst_time, arrival_time, prioritati, &wait_time, &turnaround_time, &CPU_util, limit);
-	     else printf("Invalid option!\n");
+	  
 	     
 	     average_wait_time = wait_time * 1.0 / limit;
 	     average_turnaround_time = turnaround_time * 1.0 / limit;
