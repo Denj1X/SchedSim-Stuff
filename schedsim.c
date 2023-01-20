@@ -289,7 +289,7 @@ int main(int argc, char** argv) {
 		}
 	}
 	
-	printf("The list of algorithms:\n1.FCFS\n2.Round-Robin\n3.SRT\n4.SJN\n5.Priority\n6.Priority(Non)\n");
+	printf("The list of algorithms:\n1.FCFS\n2.Round-Robin\n3.SRT\n4.SJN\n5.Priority(Non)\n");
     	char continuare[1] = "y";
     	while(continuare[0] == 'y'){
     	     wait_time = 0;
@@ -315,19 +315,15 @@ int main(int argc, char** argv) {
 			SRT(burst_time, arrival_time, &wait_time, &turnaround_time, &CPU_util, limit);
 	     if(alg_option == 4)
 			SJN(burst_time, arrival_time, &wait_time, &turnaround_time, &CPU_util, limit);
-		 if(alg_option == 5)
-		 	if(argc < 3){
-		 		printf("Please give a file with prioriries for inputs!\n");
-		 		return 0;
-		 	}
-		 	else limit = limit; //stergi asta si in locul ei apelezi functia;
-		 if(alg_option == 6)
-		 	if(argc < 3){
-		 		printf("Please give a file with prioriries for inputs!\n");
-		 		return 0;
-		 	}
-		 	else prior_non(burst_time, arrival_time, prioritati, &wait_time, &turnaround_time, &CPU_util, limit);
-		 	
+	
+	     if(alg_option == 5)
+	 	if(argc < 3){
+	 		printf("Please give a file with prioriries for inputs!\n");
+	 		return 0;
+	 	}
+	     	else prior_non(burst_time, arrival_time, prioritati, &wait_time, &turnaround_time, &CPU_util, limit);
+	     else printf("Invalid option!\n");
+	     
 	     average_wait_time = wait_time * 1.0 / limit;
 	     average_turnaround_time = turnaround_time * 1.0 / limit;
 	       
@@ -338,6 +334,7 @@ int main(int argc, char** argv) {
 	     scanf("%s",continuare);
    	}
   	free(arrival_time);
-    	free(burst_time);
+    free(burst_time);
+    free(prioritati);
 	return 0;
 }
